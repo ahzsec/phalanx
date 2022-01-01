@@ -1,0 +1,25 @@
+#STAGE-1
+
+#SUBENUM
+amass
+assetfinder
+subfinder (Docker)
+sublist3r
+subscraper
+httprobe
+
+#DNSENUM
+dig
+
+#SCREENSHOTS
+gowitness
+
+#EXTRACTION
+gau
+ParamSpider
+
+#STAGE-2
+
+#INDOM
+LinkFinder
+git-hound

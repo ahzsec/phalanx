@@ -1,0 +1,52 @@
+#!/bin/bash
+
+HEADER(){
+	printf "\e[96m                                           
+ _____ _____ _____ __    _____ _____ __ __ 
+|  _  |  |  |  _  |  |  |  _  |   | |  |  |
+|   __|     |     |  |__|     | | | |-   -|v1.0
+|__|  |__|__|__|__|_____|__|__|_|___|__|__|installation!\e[0m\n\n"
+}
+
+HEADER
+
+USAGE(){
+printf "Usage: $(basename $0) [OPTION]\n\nOptions:\n\n	-1	Tools Installation\n 	-2	PHALANX Installation\n\n"
+}
+
+PATHTOSCRIPTS="$PWD/cmd"
+
+if [[ -z "${1}" ]] 
+then
+	USAGE
+elif [[ "${1}" = "-1" ]]
+then
+	printf "\e[93m[-] Dependencies Installation Start\e[0m\n"
+	sudo apt-get install -y snapd
+	echo -ne '\e[92m########                   (33%)\e[0m\r'
+	sleep 1
+	sudo apt-get install -y amass
+	echo -ne '\e[92m################           (66%)\e[0m\r'
+	sleep 1
+	sudo docker pull ice3man/subfinder
+	echo -ne '\e[92m########################## (100%)\e[0m\r'
+	echo -ne '\n'
+	printf "\e[32m[+] Dependencies Installation End\e[0m\n"
+elif [[ "${1}" = "-2" ]]
+then
+	printf "\e[93m[-] PHALANX Installation Start\e[0m\n"
+	chmod 777 cmd
+	echo -ne '\e[92m########                   (33%)\e[0m\r'
+	sleep 1
+	chmod 777 phalanx
+	echo -ne '\e[92m################           (66%)\e[0m\r'
+	sleep 1
+	cp -R phalanx /usr/local/bin
+	cp -R cmd /usr/local/bin/cmd
+	echo -ne '\e[92m########################## (100%)\e[0m\r'
+	echo -ne '\n'
+	printf "\e[32m[+] PHALANX Installation End\e[0m\n"
+else
+	printf "\e[31m$(basename $0): error: unknown option: \"${1}\"\e[0m\n" >&2
+	exit 1
+fi

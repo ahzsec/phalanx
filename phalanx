@@ -1,0 +1,198 @@
+#!/bin/bash
+
+HEADER(){
+	printf "\e[96m
+	    ____  __  _____    __    ___    _   ___  __
+	   / __ \/ / / /   |  / /   /   |  / | / / |/ /
+	  / /_/ / /_/ / /| | / /   / /| | /  |/ /|   / 
+	 / ____/ __  / ___ |/ /___/ ___ |/ /|  //   |  
+	/_/   /_/ /_/_/  |_/_____/_/  |_/_/ |_//_/|_|v1.0\e[0m\n\n"
+}
+
+USAGE(){
+printf "Usage: $(basename $0) DOMAIN [OPTION]\n\nOptions:\n\n	-1	STAGE-1 Extraction\n 	-2	STAGE-2 Extraction\n\n"
+}
+
+HEADER
+
+#PATH
+MAINPATH="$HOME/${1}"
+
+#FOLDERSPATH
+PATHTOSCRIPTS="/usr/local/bin/cmd"
+PATHSCREENSHOTS="${MAINPATH}/screenshots"
+PATHLINKFINDER="${MAINPATH}/LinkFinder"
+PATHGITHOUND="${MAINPATH}/git-hound"
+
+#FILEPATH
+FULLFILEOUT="${MAINPATH}/${1}"
+
+#BAKPATH
+BAKMAINPATH="${MAINPATH}/${1}.bak"
+
+#FOLDERSBAKPATH
+BAKPATHSUBENUM="${BAKMAINPATH}/subdomains-enumeration.bak"
+BAKPATHPARAMSPIDER="${BAKMAINPATH}/ParamSpider.bak"
+
+#FILEBAKPATH
+FULLFILEOUTBAK="${BAKPATHSUBENUM}/${1}.bak"
+AMASSPASSIVEBAK="${BAKPATHSUBENUM}/${1}-amasspassive.bak"
+AMASSACTIVEBAK="${BAKPATHSUBENUM}/${1}-amassactive.bak"
+ASSETFINDERBAK="${BAKPATHSUBENUM}/${1}-assetfinder.bak"
+GOBUSTERBAK="${BAKPATHSUBENUM}/${1}-gobuster.bak"
+SUBFINDERBAK="${BAKPATHSUBENUM}/${1}-subfinder.bak"
+SUBLIST3RBAK="${BAKPATHSUBENUM}/${1}-sublist3r.bak"
+SUBCRAPERBAK="${BAKPATHSUBENUM}/${1}-subscraper.bak"
+
+#DOMAIN PARTS
+MAINTLD=$(echo $1 | awk -F '.' '{print $NF}' 2>/dev/null)
+MAINAME=$(echo $1 | awk -F '.' '{print $(--NF)}' 2>/dev/null)
+
+
+#STAGE-1
+SUBSENUM(){
+printf "\e[93m[-] Subdomains Enumeration process start\e[0m\n"
+
+#Amass Passive
+amass enum --passive -d $1 -o $AMASSPASSIVEBAK &>/dev/null
+printf "\e[33m[*] Amass passive process end\e[0m\n"
+#Amass Active
+amass enum --active -d $1 -o $AMASSACTIVEBAK &>/dev/null
+printf "\e[33m[*] Amass active process end\e[0m\n"
+#Assetfinder
+$PATHTOSCRIPTS/SUBSENUM/assetfinder $1 -subs-only 1> $ASSETFINDERBAK
+printf "\e[33m[*] Assetfinder process end\e[0m\n"
+#Subfinder
+docker run ice3man/subfinder -d $1 -silent 1> $SUBFINDERBAK
+printf "\e[33m[*] Subfinder process end\e[0m\n"
+#Sublist3r
+$PATHTOSCRIPTS/SUBSENUM/Sublist3r/sublist3r.py -d $1 -o $SUBLIST3RBAK &>/dev/null
+printf "\e[33m[*] Sublist3r process end\e[0m\n"
+#Subscraper
+$PATHTOSCRIPTS/SUBSENUM/subscraper/subscraper.py $1 1> $SUBCRAPERBAK
+printf "\e[33m[*] Subscraper process end\e[0m\n"
+
+#OUTPUT Process Start
+#OUTPUT Formation
+#GOBUSTERCAT=$(echo $GOBUSTERBAK | awk '{print $2}')
+SUBCRAPERCAT=$(echo $SUBCRAPERBAK | awk '{print $2}' | head -n -4 | tail -n +10)
+#OUTPUT Gathering
+FULLFILECAT=$(cat $AMASSPASSIVEBAK $AMASSACTIVEBAK $ASSETFINDERBAK $GITHUBSUBDOMAINSBAK $SUBFINDERBAK $SUBLIST3RBAK $SUBCRAPERCAT | sort -u)
+
+for L in $FULLFILECAT
+do
+	TLD=$(echo $L | awk -F '.' '{print $NF}')
+	NAME=$(echo $L | awk -F '.' '{print $(--NF)}')
+	if [ "${TLD}" = "${MAINTLD}" ] && [ "${NAME}" = "${MAINAME}" ]
+	then
+		echo $L 1>> $FULLFILEOUTBAK
+	fi
+done
+sleep 5
+#OUTPUT Process End
+cat $FULLFILEOUTBAK | $PATHTOSCRIPTS/SUBSENUM/httprobe/main -t 20000 | sed 's#https*://##g'| sort -u 1> $FULLFILEOUT
+printf "\e[32m[+] Subdomains Enumeration process end\e[0m\n"
+}
+
+
+DNSENUM(){
+printf "\e[93m[-] DNS Enumeration process start\e[0m\n"
+for L in $(cat $FULLFILEOUT)
+do
+	EMANC=$(dig CNAME $L | grep 'CNAME' | awk '{print $4}' | tail -1)
+	if [ "${EMANC}" = "CNAME" ]
+	then
+		IP=$(dig +short $L | tail -1)
+		CNAME=$(dig CNAME $L | grep 'CNAME' | awk '{print $5}' | tail -1 | sed 's/.$//g')
+		PTR=$(dig +answer -x $IP | grep 'PTR' | awk '{print $5}' | sed '/^[[:space:]]*$/d' | sed 's/.$//g')
+		printf "${L} (${CNAME})\n${IP} (${PTR})\n\n" 1>> "${FULLFILEOUT}-CNAME-PTR"
+	fi
+done
+printf "\e[32m[+] DNS Enumeration process end\e[0m\n"
+}
+
+SCREENSENUM(){
+printf "\e[93m[-] Screenshots Enumeration process start\e[0m\n"
+for L in $(cat $FULLFILEOUT)
+do
+$PATHTOSCRIPTS/SCREENSENUM/gowitness/main single --destination $PATHSCREENSHOTS -u https://$L &>/dev/null
+done
+$PATHTOSCRIPTS/SCREENSENUM/gowitness/main report generate -n $FULLFILEOUT &>/dev/null
+printf "\e[32m[+] Screenshots Enumeration process end\e[0m\n"
+}
+
+EXTRACTION(){
+printf "\e[93m[-] Extraction process start\e[0m\n"
+cat $FULLFILEOUT | $PATHTOSCRIPTS/EXTRACTION/gau/main | sort -u 1> "${FULLFILEOUT}-gau"
+printf "\e[33m[*] Gau Extraction process end\e[0m\n"
+for L in $(cat $FULLFILEOUT)
+do
+	BAKPATHFILEPARAMSPIDER="${BAKPATHPARAMSPIDER}/${L}-ParamSpider.bak"
+	$PATHTOSCRIPTS/EXTRACTION/ParamSpider/paramspider.py -d $L -l high -o $BAKPATHFILEPARAMSPIDER &>/dev/null
+	if [[ -f "${BAKPATHFILEPARAMSPIDER}" ]]
+	then
+		cat $BAKPATHFILEPARAMSPIDER 1>> "${BAKPATHPARAMSPIDER}/${1}.bak"
+	fi
+done
+cat "${BAKPATHPARAMSPIDER}/${1}.bak" | sed 's/^FUZZ$//g' | sed '/^[[:space:]]*$/d' | sort -u 1> "${FULLFILEOUT}-ParamSpider"
+printf "\e[33m[*] ParamSpider Extraction process end\e[0m\n"
+printf "\e[32m[+] Extraction process end\e[0m\n"
+}
+
+#STAGE-2
+#INDIVIDUALDOMAIN
+INDOM(){
+printf "\e[93m[-] Extraction process start\e[0m\n"
+$PATHTOSCRIPTS/INDOM/LinkFinder/linkfinder.py -i "http://${1}/" -d -o "${PATHLINKFINDER}/${1}.html" &>/dev/null
+printf "\e[33m[*] LinkFinder Enumeration process end\e[0m\n"
+echo "${1}" | $PATHTOSCRIPTS/INDOM/git-hound/main --config-file "${PATHTOSCRIPTS}/INDOM/git-hound/config.yml" 1> "${PATHGITHOUND}/${1}"
+printf "\e[33m[*] Git-hound Enumeration process end\e[0m\n"
+printf "\e[32m[+] Extraction process end\e[0m\n"
+}
+
+#CTRL+C TERMINATOR
+function ctrl_c() {
+    printf "\e[31m$(basename $0): Your process is terminated\e[0m\n"
+    exit 1
+}
+
+stty -echoctl
+trap ctrl_c SIGINT
+
+#PATHCREATOR
+PATHCREATOR(){
+if [ ! -d "${MAINPATH}" ]
+then
+	mkdir "${MAINPATH}" && mkdir "${PATHSCREENSHOTS}" && mkdir "${PATHLINKFINDER}" && mkdir "${PATHGITHOUND}" && mkdir "${BAKMAINPATH}" && mkdir "${BAKPATHSUBENUM}" && mkdir "${BAKPATHPARAMSPIDER}"
+fi
+}
+
+#OPERATOR
+if [[ -z "${1}" ]]
+then
+	USAGE
+else
+	case ${2} in
+		-1)
+			SECONDS=0
+			PATHCREATOR
+			SUBSENUM $1
+			sleep 5
+			DNSENUM
+			sleep 5
+			SCREENSENUM $1
+			sleep 5
+			EXTRACTION $1
+			ENDTIME=$[$SECONDS/60]
+			printf "\e[93m$(basename $0): Your process time is ${ENDTIME} m\e[0m\n"
+			;;
+		-2)
+			SECONDS=0
+			PATHCREATOR
+			INDOM $1
+			ENDTIME=$[$SECONDS/60]
+			printf "\e[93m$(basename $0): Your process time is ${ENDTIME} m\e[0m\n"
+			;;
+		*) if [[ -z "${2}" ]]; then printf "\e[31m$(basename $0): error: please provide an option\e[0m\n" >&2; exit 1; else printf "\e[31m$(basename $0): error: unknown option: \"${2}\"\e[0m\n" >&2; exit 1; fi  ;;
+	esac
+fi
