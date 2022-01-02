@@ -71,6 +71,7 @@ printf "\e[33m[*] Sublist3r process end\e[0m\n"
 #Subscraper
 $PATHTOSCRIPTS/SUBSENUM/subscraper/subscraper.py $1 1> $SUBCRAPERBAK
 printf "\e[33m[*] Subscraper process end\e[0m\n"
+rm $HOME/subscraper_report.txt
 
 #OUTPUT Process Start
 #OUTPUT Formation
@@ -119,6 +120,7 @@ $PATHTOSCRIPTS/SCREENSENUM/gowitness/main single --destination $PATHSCREENSHOTS 
 done
 $PATHTOSCRIPTS/SCREENSENUM/gowitness/main report generate -n $FULLFILEOUT &>/dev/null
 printf "\e[32m[+] Screenshots Enumeration process end\e[0m\n"
+rm $HOME/gowitness.db
 }
 
 EXTRACTION(){
