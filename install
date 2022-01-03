@@ -1,17 +1,17 @@
 #!/bin/bash
 
 HEADER(){
-	printf "\e[96m                                           
+printf "\e[96m                                           
  _____ _____ _____ __    _____ _____ __ __ 
 |  _  |  |  |  _  |  |  |  _  |   | |  |  |
-|   __|     |     |  |__|     | | | |-   -|v1.0
+|   __|     |     |  |__|     | | | |-   -|v1.2
 |__|  |__|__|__|__|_____|__|__|_|___|__|__|installation!\e[0m\n\n"
 }
 
 HEADER
 
 USAGE(){
-printf "Usage: $(basename $0) [OPTION]\n\nOptions:\n\n	-1	Tools Installation\n 	-2	PHALANX Installation\n\n"
+printf "Usage: $(basename $0) [OPTION]\n\nOptions:\n\n	-0 [token]	Slack Configuration\n	-1		Tools Installation\n 	-2		PHALANX Installation\n\n"
 }
 
 PATHTOSCRIPTS="$PWD/cmd"
@@ -19,6 +19,16 @@ PATHTOSCRIPTS="$PWD/cmd"
 if [[ -z "${1}" ]] 
 then
 	USAGE
+elif [[ "${1}" = "-0" ]]
+then
+	if [[ -z "${2}" ]]
+	then
+		printf "\e[31m$(basename $0): error: please provide slack token\e[0m\n" >&2
+		exit 1
+	else
+		echo "${2}" 1> $PATHTOSCRIPTS/slack.token
+		printf "\e[32m[*] Slack has been configured\e[0m\n"
+	fi
 elif [[ "${1}" = "-1" ]]
 then
 	printf "\e[93m[-] Dependencies Installation Start\e[0m\n"

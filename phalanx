@@ -6,7 +6,7 @@ HEADER(){
 	   / __ \/ / / /   |  / /   /   |  / | / / |/ /
 	  / /_/ / /_/ / /| | / /   / /| | /  |/ /|   / 
 	 / ____/ __  / ___ |/ /___/ ___ |/ /|  //   |  
-	/_/   /_/ /_/_/  |_/_____/_/  |_/_/ |_//_/|_|v1.0\e[0m\n\n"
+	/_/   /_/ /_/_/  |_/_____/_/  |_/_/ |_//_/|_|v1.2\e[0m\n\n"
 }
 
 USAGE(){
@@ -17,15 +17,18 @@ HEADER
 
 #PATH
 MAINPATH="$HOME/${1}"
+PATHTOSCRIPTS="$PWD/cmd"
 
 #FOLDERSPATH
-PATHTOSCRIPTS="/usr/local/bin/cmd"
 PATHSCREENSHOTS="${MAINPATH}/screenshots"
 PATHLINKFINDER="${MAINPATH}/LinkFinder"
 PATHGITHOUND="${MAINPATH}/git-hound"
 
 #FILEPATH
 FULLFILEOUT="${MAINPATH}/${1}"
+
+#SCRIPTPATH
+PATHTOSLACKTOKEN="${PATHTOSCRIPTS}/slack.token"
 
 #BAKPATH
 BAKMAINPATH="${MAINPATH}/${1}.bak"
@@ -39,7 +42,6 @@ FULLFILEOUTBAK="${BAKPATHSUBENUM}/${1}.bak"
 AMASSPASSIVEBAK="${BAKPATHSUBENUM}/${1}-amasspassive.bak"
 AMASSACTIVEBAK="${BAKPATHSUBENUM}/${1}-amassactive.bak"
 ASSETFINDERBAK="${BAKPATHSUBENUM}/${1}-assetfinder.bak"
-GOBUSTERBAK="${BAKPATHSUBENUM}/${1}-gobuster.bak"
 SUBFINDERBAK="${BAKPATHSUBENUM}/${1}-subfinder.bak"
 SUBLIST3RBAK="${BAKPATHSUBENUM}/${1}-sublist3r.bak"
 SUBCRAPERBAK="${BAKPATHSUBENUM}/${1}-subscraper.bak"
@@ -52,7 +54,6 @@ MAINAME=$(echo $1 | awk -F '.' '{print $(--NF)}' 2>/dev/null)
 #STAGE-1
 SUBSENUM(){
 printf "\e[93m[-] Subdomains Enumeration process start\e[0m\n"
-
 #Amass Passive
 amass enum --passive -d $1 -o $AMASSPASSIVEBAK &>/dev/null
 printf "\e[33m[*] Amass passive process end\e[0m\n"
@@ -75,7 +76,6 @@ rm $HOME/subscraper_report.txt
 
 #OUTPUT Process Start
 #OUTPUT Formation
-#GOBUSTERCAT=$(echo $GOBUSTERBAK | awk '{print $2}')
 SUBCRAPERCAT=$(echo $SUBCRAPERBAK | awk '{print $2}' | head -n -4 | tail -n +10)
 #OUTPUT Gathering
 FULLFILECAT=$(cat $AMASSPASSIVEBAK $AMASSACTIVEBAK $ASSETFINDERBAK $GITHUBSUBDOMAINSBAK $SUBFINDERBAK $SUBLIST3RBAK $SUBCRAPERCAT | sort -u)
@@ -92,6 +92,13 @@ done
 sleep 5
 #OUTPUT Process End
 cat $FULLFILEOUTBAK | $PATHTOSCRIPTS/SUBSENUM/httprobe/main -t 20000 | sed 's#https*://##g'| sort -u 1> $FULLFILEOUT
+if [[ -f "$PATHTOSLACKTOKEN" ]]
+then
+	NEWLINE="""
+"""
+	curl -s -F token=$(cat $PATHTOSLACKTOKEN) -F channel=subdomains -F text="Your ${1} subdomains:${NEWLINE}$(cat $FULLFILEOUT)" https://slack.com/api/chat.postMessage &>/dev/null
+	curl -s -F token=$(cat $PATHTOSLACKTOKEN) -F channel=subdomains -F text="💻⭐💻⭐💻⭐💻⭐💻⭐💻⭐💻⭐" https://slack.com/api/chat.postMessage &>/dev/null
+fi
 printf "\e[32m[+] Subdomains Enumeration process end\e[0m\n"
 }
 
