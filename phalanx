@@ -6,7 +6,7 @@ HEADER(){
 	   / __ \/ / / /   |  / /   /   |  / | / / |/ /
 	  / /_/ / /_/ / /| | / /   / /| | /  |/ /|   / 
 	 / ____/ __  / ___ |/ /___/ ___ |/ /|  //   |  
-	/_/   /_/ /_/_/  |_/_____/_/  |_/_/ |_//_/|_|v1.2\e[0m\n\n"
+	/_/   /_/ /_/_/  |_/_____/_/  |_/_/ |_//_/|_|v1.3\e[0m\n\n"
 }
 
 USAGE(){
@@ -73,7 +73,6 @@ printf "\e[33m[*] Sublist3r process end\e[0m\n"
 $PATHTOSCRIPTS/SUBSENUM/subscraper/subscraper.py $1 1> $SUBCRAPERBAK
 printf "\e[33m[*] Subscraper process end\e[0m\n"
 rm $HOME/subscraper_report.txt
-
 #OUTPUT Process Start
 #OUTPUT Formation
 SUBCRAPERCAT=$(echo $SUBCRAPERBAK | awk '{print $2}' | head -n -4 | tail -n +10)
@@ -99,6 +98,7 @@ then
 	curl -s -F token=$(cat $PATHTOSLACKTOKEN) -F channel=subdomains -F text="Your ${1} subdomains:${NEWLINE}$(cat $FULLFILEOUT)" https://slack.com/api/chat.postMessage &>/dev/null
 	curl -s -F token=$(cat $PATHTOSLACKTOKEN) -F channel=subdomains -F text="💻⭐💻⭐💻⭐💻⭐💻⭐💻⭐💻⭐" https://slack.com/api/chat.postMessage &>/dev/null
 fi
+python3 $PATHTOSCRIPTS/phalanx-api.py $1 $FULLFILEOUT &>/dev/null
 printf "\e[32m[+] Subdomains Enumeration process end\e[0m\n"
 }
 
