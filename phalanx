@@ -6,18 +6,21 @@ HEADER(){
 	   / __ \/ / / /   |  / /   /   |  / | / / |/ /
 	  / /_/ / /_/ / /| | / /   / /| | /  |/ /|   / 
 	 / ____/ __  / ___ |/ /___/ ___ |/ /|  //   |  
-	/_/   /_/ /_/_/  |_/_____/_/  |_/_/ |_//_/|_|v1.3\e[0m\n\n"
+	/_/   /_/ /_/_/  |_/_____/_/  |_/_/ |_//_/|_|v1.4\e[0m\n\n"
 }
 
 USAGE(){
-printf "Usage: $(basename $0) DOMAIN [OPTION]\n\nOptions:\n\n	-1	STAGE-1 Extraction\n 	-2	STAGE-2 Extraction\n\n"
+printf "Usage: $(basename $0) DOMAIN [OPTION]\n\nOptions:\n\n	-1	STAGE-1 Extraction\n 	-2	STAGE-2 Extraction\n 	-3	STAGE-3 Extraction\n\n"
 }
 
 HEADER
 
+#SCRIPTPATH
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 #PATH
 MAINPATH="$HOME/${1}"
-PATHTOSCRIPTS="$PWD/cmd"
+PATHTOSCRIPTS="$DIR/cmd"
 
 #FOLDERSPATH
 PATHSCREENSHOTS="${MAINPATH}/screenshots"
@@ -159,6 +162,15 @@ printf "\e[33m[*] Git-hound Enumeration process end\e[0m\n"
 printf "\e[32m[+] Extraction process end\e[0m\n"
 }
 
+#STAGE-3
+#AUTOPARAMIZING
+AUTOPARAM(){
+printf "\e[93m[-] Paramizer process start\e[0m\n"
+$PATHTOSCRIPTS/AUTOPARAM/dalfox/dalfox file "${FULLFILEOUT}-ParamSpider" -o "${FULLFILEOUT}-DalFox" &>/dev/null
+printf "\e[33m[*] Dalfox Enumeration process end\e[0m\n"
+printf "\e[32m[+] Paramizer process end\e[0m\n"
+}
+
 #CTRL+C TERMINATOR
 function ctrl_c() {
     printf "\e[31m$(basename $0): Your process is terminated\e[0m\n"
@@ -199,6 +211,12 @@ else
 			SECONDS=0
 			PATHCREATOR
 			INDOM $1
+			ENDTIME=$[$SECONDS/60]
+			printf "\e[93m$(basename $0): Your process time is ${ENDTIME} m\e[0m\n"
+			;;
+		-3)
+			SECONDS=0
+			AUTOPARAM $1
 			ENDTIME=$[$SECONDS/60]
 			printf "\e[93m$(basename $0): Your process time is ${ENDTIME} m\e[0m\n"
 			;;
