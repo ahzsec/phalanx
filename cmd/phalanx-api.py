@@ -3,7 +3,7 @@ import requests
 import sys
 
 url="https://phalanx.herokuapp.com/subs"
-
+tkn=open("slack.token", "r")
 with open('{}'.format(sys.argv[2])) as f:
     lines = f.read().splitlines()
 
@@ -11,7 +11,7 @@ subs = {"domain":"{}".format(sys.argv[1]),"subdomains":lines}
 
 payload = json.dumps(subs)
 headers = {
-  'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZjdhYWIwN2Q4MWE5YjNlYzRlNDVlY2YiLCJpYXQiOjE2MDE4ODg3Mjh9.CFULuwc-GjFJSOIy7YNnMlTsOGhaPpBwt5gHYoVigBM',
+  'Authorization': 'Bearer {}'.format(tkn.readline().strip('\n')),
   'Content-Type': 'application/json'
 }
 

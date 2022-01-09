@@ -6,7 +6,7 @@ HEADER(){
 	   / __ \/ / / /   |  / /   /   |  / | / / |/ /
 	  / /_/ / /_/ / /| | / /   / /| | /  |/ /|   / 
 	 / ____/ __  / ___ |/ /___/ ___ |/ /|  //   |  
-	/_/   /_/ /_/_/  |_/_____/_/  |_/_/ |_//_/|_|v1.4\e[0m\n\n"
+	/_/   /_/ /_/_/  |_/_____/_/  |_/_/ |_//_/|_|v1.5.2\e[0m\n\n"
 }
 
 USAGE(){
@@ -16,7 +16,7 @@ printf "Usage: $(basename $0) DOMAIN [OPTION]\n\nOptions:\n\n	-1	STAGE-1 Extract
 HEADER
 
 #SCRIPTPATH
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 #PATH
 MAINPATH="$HOME/${1}"
@@ -30,8 +30,9 @@ PATHGITHOUND="${MAINPATH}/git-hound"
 #FILEPATH
 FULLFILEOUT="${MAINPATH}/${1}"
 
-#SCRIPTPATH
+#TOKENPATH
 PATHTOSLACKTOKEN="${PATHTOSCRIPTS}/slack.token"
+PATHTOPHALANXTOKEN="${PATHTOSCRIPTS}/phalanx.token"
 
 #BAKPATH
 BAKMAINPATH="${MAINPATH}/${1}.bak"
@@ -75,7 +76,7 @@ printf "\e[33m[*] Sublist3r process end\e[0m\n"
 #Subscraper
 $PATHTOSCRIPTS/SUBSENUM/subscraper/subscraper.py $1 1> $SUBCRAPERBAK
 printf "\e[33m[*] Subscraper process end\e[0m\n"
-rm $HOME/subscraper_report.txt
+rm "$HOME/subscraper_report.txt"
 #OUTPUT Process Start
 #OUTPUT Formation
 SUBCRAPERCAT=$(echo $SUBCRAPERBAK | awk '{print $2}' | head -n -4 | tail -n +10)
@@ -91,7 +92,6 @@ do
 		echo $L 1>> $FULLFILEOUTBAK
 	fi
 done
-sleep 5
 #OUTPUT Process End
 cat $FULLFILEOUTBAK | $PATHTOSCRIPTS/SUBSENUM/httprobe/main -t 20000 | sed 's#https*://##g'| sort -u 1> $FULLFILEOUT
 if [[ -f "$PATHTOSLACKTOKEN" ]]
@@ -101,7 +101,10 @@ then
 	curl -s -F token=$(cat $PATHTOSLACKTOKEN) -F channel=subdomains -F text="Your ${1} subdomains:${NEWLINE}$(cat $FULLFILEOUT)" https://slack.com/api/chat.postMessage &>/dev/null
 	curl -s -F token=$(cat $PATHTOSLACKTOKEN) -F channel=subdomains -F text="💻⭐💻⭐💻⭐💻⭐💻⭐💻⭐💻⭐" https://slack.com/api/chat.postMessage &>/dev/null
 fi
-python3 $PATHTOSCRIPTS/phalanx-api.py $1 $FULLFILEOUT &>/dev/null
+if [[ -f "$PATHTOPHALANXTOKEN" ]]
+then
+	python3 $PATHTOSCRIPTS/phalanx-api.py $1 $FULLFILEOUT
+fi
 printf "\e[32m[+] Subdomains Enumeration process end\e[0m\n"
 }
 
@@ -119,7 +122,10 @@ do
 		printf "${L} (${CNAME})\n${IP} (${PTR})\n\n" 1>> "${FULLFILEOUT}-CNAME-PTR"
 	fi
 done
-python3 $PATHTOSCRIPTS/dominator.py $FULLFILEOUT
+if [[ -f "$PATHTOSLACKTOKEN" ]]
+then
+	python3 $PATHTOSCRIPTS/dominator.py $FULLFILEOUT
+fi
 printf "\e[32m[+] DNS Enumeration process end\e[0m\n"
 }
 
@@ -132,7 +138,7 @@ $PATHTOSCRIPTS/SCREENSENUM/gowitness/main single --destination $PATHSCREENSHOTS 
 done
 $PATHTOSCRIPTS/SCREENSENUM/gowitness/main report generate -n $FULLFILEOUT &>/dev/null
 printf "\e[32m[+] Screenshots Enumeration process end\e[0m\n"
-rm $HOME/gowitness.db
+rm "$HOME/gowitness.db"
 }
 
 EXTRACTION(){
@@ -187,6 +193,9 @@ PATHCREATOR(){
 if [ ! -d "${MAINPATH}" ]
 then
 	mkdir "${MAINPATH}" && mkdir "${PATHSCREENSHOTS}" && mkdir "${PATHLINKFINDER}" && mkdir "${PATHGITHOUND}" && mkdir "${BAKMAINPATH}" && mkdir "${BAKPATHSUBENUM}" && mkdir "${BAKPATHPARAMSPIDER}"
+else
+	printf "\e[31m$(basename $0): error: this domain path already exists, please provide other domain\e[0m\n" >&2
+	exit 1
 fi
 }
 
@@ -200,11 +209,8 @@ else
 			SECONDS=0
 			PATHCREATOR
 			SUBSENUM $1
-			sleep 1
 			DNSENUM
-			sleep 1
 			SCREENSENUM $1
-			sleep 1
 			EXTRACTION $1
 			ENDTIME=$[$SECONDS/60]
 			printf "\e[93m$(basename $0): Your process time is ${ENDTIME} m\e[0m\n"
