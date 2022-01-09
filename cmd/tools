@@ -10,6 +10,7 @@ httprobe
 
 #DNSENUM
 dig
+dominator
 
 #SCREENSHOTS
 gowitness

@@ -119,8 +119,10 @@ do
 		printf "${L} (${CNAME})\n${IP} (${PTR})\n\n" 1>> "${FULLFILEOUT}-CNAME-PTR"
 	fi
 done
+python3 $PATHTOSCRIPTS/dominator.py $FULLFILEOUT
 printf "\e[32m[+] DNS Enumeration process end\e[0m\n"
 }
+
 
 SCREENSENUM(){
 printf "\e[93m[-] Screenshots Enumeration process start\e[0m\n"
@@ -198,11 +200,11 @@ else
 			SECONDS=0
 			PATHCREATOR
 			SUBSENUM $1
-			sleep 5
+			sleep 1
 			DNSENUM
-			sleep 5
+			sleep 1
 			SCREENSENUM $1
-			sleep 5
+			sleep 1
 			EXTRACTION $1
 			ENDTIME=$[$SECONDS/60]
 			printf "\e[93m$(basename $0): Your process time is ${ENDTIME} m\e[0m\n"
