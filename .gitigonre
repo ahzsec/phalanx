@@ -1,2 +1,1 @@
-cmd/slack.token
-cmd/phalanx.token
+cmd/*.token
