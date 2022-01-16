@@ -10,9 +10,11 @@ httprobe
 
 #DNSENUM
 dig
-dominator
 
-#SCREENSHOTS
+#DOMINATOR
+subjack
+
+#SCREENSENUM
 gowitness
 
 #EXTRACTION

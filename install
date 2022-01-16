@@ -4,7 +4,7 @@ HEADER(){
 printf "\e[96m                                           
  _____ _____ _____ __    _____ _____ __ __ 
 |  _  |  |  |  _  |  |  |  _  |   | |  |  |
-|   __|     |     |  |__|     | | | |-   -|v1.3.2
+|   __|     |     |  |__|     | | | |-   -|v1.3.3
 |__|  |__|__|__|__|_____|__|__|_|___|__|__|installation!\e[0m\n\n"
 }
 
@@ -72,7 +72,7 @@ then
 	echo -ne '\e[92m################           (66%)\e[0m\r'
 	sleep 1
 	cp -R phalanx /usr/local/bin
-	cp -R cmd /usr/local/bin/cmd
+	cp -R phalanx-tools /usr/local/bin/phalanx-tools
 	echo -ne '\e[92m########################## (100%)\e[0m\r'
 	echo -ne '\n'
 	printf "\e[32m[+] PHALANX Installation End\e[0m\n"

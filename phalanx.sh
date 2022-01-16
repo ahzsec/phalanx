@@ -6,7 +6,7 @@ HEADER(){
 	   / __ \/ / / /   |  / /   /   |  / | / / |/ /
 	  / /_/ / /_/ / /| | / /   / /| | /  |/ /|   / 
 	 / ____/ __  / ___ |/ /___/ ___ |/ /|  //   |  
-	/_/   /_/ /_/_/  |_/_____/_/  |_/_/ |_//_/|_|v1.5.2\e[0m\n\n"
+	/_/   /_/ /_/_/  |_/_____/_/  |_/_/ |_//_/|_|v1.5.3\e[0m\n\n"
 }
 
 USAGE(){
@@ -20,7 +20,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 #PATH
 MAINPATH="$HOME/${1}"
-PATHTOSCRIPTS="$DIR/cmd"
+PATHTOSCRIPTS="$DIR/phalanx-tools"
 
 #FOLDERSPATH
 PATHSCREENSHOTS="${MAINPATH}/screenshots"
@@ -122,11 +122,20 @@ do
 		printf "${L} (${CNAME})\n${IP} (${PTR})\n\n" 1>> "${FULLFILEOUT}-CNAME-PTR"
 	fi
 done
-if [[ -f "$PATHTOSLACKTOKEN" ]]
-then
-	python3 $PATHTOSCRIPTS/dominator.py $FULLFILEOUT
-fi
 printf "\e[32m[+] DNS Enumeration process end\e[0m\n"
+}
+
+DOMINATOR(){
+printf "\e[93m[-] DOMINATOR Extraction process start\e[0m\n"
+POTENTIALTAKEOVER=$($PATHTOSCRIPTS/DOMINATOR/subjack/main -a -m -v -c fingerprints.json -w $(echo $FULLFILEOUT) | grep -v 'Not Vulnerable' | awk -F ' ' '{print $NF}')
+while read LINE
+do
+	if [ ! -z $LINE ]
+	then
+		curl -s -F token=$(cat $PATHTOSLACKTOKEN) -F channel=dominator -F text="🌟 Potential http://$LINE Takeover 🌠" https://slack.com/api/chat.postMessage &>/dev/null
+	fi
+done <<< "$POTENTIALTAKEOVER"
+printf "\e[32m[+] DOMINATOR Extraction process end\e[0m\n"
 }
 
 
@@ -210,6 +219,7 @@ else
 			PATHCREATOR
 			SUBSENUM $1
 			DNSENUM
+			DOMINATOR
 			SCREENSENUM $1
 			EXTRACTION $1
 			ENDTIME=$[$SECONDS/60]
