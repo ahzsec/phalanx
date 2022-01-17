@@ -14,7 +14,7 @@ USAGE(){
 printf "Usage: $(basename $0) [OPTION]\n\nOptions:\n\n	-0 \e[91m[token]\e[0m	Slack Configuration \e[91m[!]\e[0m\n	-1 \e[91m[token]\e[0m	PHALANX-API Configuration \e[91m[!]\e[0m\n	-2		Tools Installation\n 	-3		PHALANX Installation\n\n"
 }
 
-PATHTOSCRIPTS="$PWD/cmd"
+PATHTOSCRIPTS="$PWD/phalanx-tools"
 
 if [[ -z "${1}" ]] 
 then
@@ -65,7 +65,7 @@ then
 		exit 1
 	fi
 	printf "\e[93m[-] PHALANX Installation Start\e[0m\n"
-	chmod 777 cmd
+	chmod 777 phalanx-tools
 	echo -ne '\e[92m########                   (33%)\e[0m\r'
 	sleep 1
 	chmod 777 phalanx
