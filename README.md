@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://github.com/ahzsec/phalanx">
-    <img src="https://f.top4top.io/p_2595o1na21.png" alt="Phalanx Logo" width="500">
+    <img src="preview/logo.png" alt="Phalanx Logo" width="500">
   </a>
   <h3 align="center" style="color:#ff9000;">Automated weapon for penetration testers</h3>
 
@@ -18,7 +18,7 @@
 ## Stages
 <div align="center">
     </br>
-    <img src="https://g.top4top.io/p_2595satqf2.png" alt="Stages" width="380">
+    <img src="preview/stages.png" alt="Stages" width="380">
     </br>
     </br>
 </div>
@@ -27,7 +27,7 @@
 
 <div align="center">
     </br>
-    <img src="https://h.top4top.io/p_25957hle71.png" alt="Stage 1" width="480">
+    <img src="preview/stage-1.png" alt="Stage 1" width="480">
     </br>
     </br>
 </div>
@@ -36,7 +36,7 @@
 
 <div align="center">
     </br>
-    <img src="https://d.top4top.io/p_2595c3w3h1.png" alt="Stage 2" width="320">
+    <img src="preview/stage-2.png" alt="Stage 2" width="320">
     </br>
     </br>
 </div>
@@ -45,10 +45,10 @@
 
 <div align="center">
     </br>
-    <img src="https://e.top4top.io/p_2595ueac72.png" alt="Stage 3" width="320">
+    <img src="preview/stage-3.png" alt="Stage 3" width="320">
     </br>
     </br>
 </div>
 
 # Disclaimer
-Phalanx has been in private development since 2020, While later versions are available, Version 1.0.0 is shared as a public good for penetration testers, Check the code before you add it to your workflow and use it at your own risk.
+Phalanx has been in private development for a few years. While later versions are available, v1.5.3 is released as a public good for penetration testers. Review the code before adding it to your workflow, and use at your own risk.
